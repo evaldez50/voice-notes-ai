@@ -266,6 +266,12 @@ def delete_recording(recording_id: int, db: Session = Depends(get_db)):
     return {"message": "Eliminado correctamente"}
 
 
+# Serve frontend static files in production (when built frontend exists)
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.isdir(static_dir):
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
