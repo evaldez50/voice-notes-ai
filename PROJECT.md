@@ -2,6 +2,9 @@
 
 App full-stack para grabar notas de voz, transcribirlas automáticamente con Whisper, y analizarlas con Claude. Incluye chat con contexto de las grabaciones, resúmenes ejecutivos, y generación de mapas mentales.
 
+
+**Versión:** 0.3.0
+
 ## Stack tecnológico
 
 ### Backend
@@ -190,6 +193,25 @@ npm run dev                  # http://localhost:5173
 - [ ] **Carpetas/tags para organizar** — Sistema de organización para grabaciones
 - [ ] **Notificaciones de transcripción** — WebSocket para notificar cuando una transcripción larga termina
 
+
+## Changelog
+
+### v0.3.0 — 2026-03-15
+- Agregado chat streaming con Claude Opus 4.6 y contexto de grabaciones
+- Agregado generación de mapas mentales con structured output
+- Agregado resúmenes ejecutivos con timestamps
+- Mejora: soporte para múltiples formatos de audio
+
+### v0.2.0 — 2026-02-28
+- Agregado frontend con React + TypeScript + Tailwind
+- Agregado reproductor de audio y visor de transcripciones
+- Agregado drag & drop para subir archivos
+- Agregado hook useVoice para grabar desde micrófono
+
+### v0.1.0 — 2026-02-10
+- MVP backend con FastAPI
+- Transcripción local con faster-whisper
+- Base de datos SQLite con SQLAlchemy
 
 ## Notas para Claude Code
 
