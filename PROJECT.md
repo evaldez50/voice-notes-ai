@@ -145,6 +145,52 @@ npm run dev                  # http://localhost:5173
 - Soporta múltiples formatos de audio: m4a, mp3, wav, ogg, aac, flac, mp4, webm
 - Frontend con React + TypeScript + Tailwind
 
+
+## Roadmap
+
+### Sprint 1 — MVP Backend (Completado)
+- FastAPI con endpoints de upload y transcripción
+- Integración con faster-whisper para transcripción local
+- Base de datos SQLite con SQLAlchemy
+
+### Sprint 2 — Frontend React (Completado)
+- UI con React + TypeScript + Tailwind
+- Componentes: UploadArea, RecordingCard, AudioPlayer, TranscriptViewer
+- Chat streaming con Claude usando SSE
+
+### Sprint 3 — IA Avanzada (Completado)
+- Resúmenes ejecutivos con Claude Opus 4.6
+- Generación de mapas mentales con structured output
+- Chat con contexto de múltiples grabaciones
+
+### Sprint 4 — Grabación y TTS (Completado)
+- Hook useVoice para grabación desde micrófono
+- Text-to-speech con Web Speech API
+- Soporte para múltiples formatos de audio
+
+
+## Bugs conocidos
+
+| Bug | Severidad | Status |
+|---|---|---|
+| La transcripción con faster-whisper falla si el audio tiene más de 30 minutos | Medio | Abierto |
+| El streaming SSE se corta en algunos proxies corporativos | Medio | Abierto |
+| La base de datos SQLite se bloquea con escrituras concurrentes (múltiples uploads simultáneos) | Alto | Abierto |
+| El mapa mental no renderiza correctamente con más de 20 nodos | Bajo | Abierto |
+| Los archivos .webm del navegador a veces no se transcriben correctamente | Medio | Abierto |
+
+
+## Siguientes pasos recomendados
+
+- [ ] **Migrar de SQLite a PostgreSQL** — Para soportar escrituras concurrentes y preparar para deploy en la nube
+- [ ] **Agregar autenticación** — OAuth o API keys para uso multi-usuario
+- [ ] **Deploy en la nube** — Dockerizar y deployar en Railway/Fly.io para acceso remoto
+- [ ] **Búsqueda semántica** — Implementar vector search sobre las transcripciones para encontrar contenido específico
+- [ ] **Exportar transcripciones** — PDF, TXT, y SRT (subtítulos) como formatos de exportación
+- [ ] **Carpetas/tags para organizar** — Sistema de organización para grabaciones
+- [ ] **Notificaciones de transcripción** — WebSocket para notificar cuando una transcripción larga termina
+
+
 ## Notas para Claude Code
 
 - El backend usa Claude Opus 4.6 (`claude-opus-4-6`) — no cambiar sin consultar
