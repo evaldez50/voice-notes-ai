@@ -30,7 +30,7 @@ class Recording(Base):
     language = Column(String, nullable=True)
     title = Column(String, nullable=True)
     summary = Column(Text, nullable=True)
-    tasks_count = Column(Integer, default=0)
+    tasks_count = Column(Integer, default=0, nullable=False)
 
 
 Base.metadata.create_all(bind=engine)
