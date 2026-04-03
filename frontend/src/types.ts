@@ -10,6 +10,7 @@ export interface Recording {
   language: string | null
   title: string | null
   summary: string | null
+  tasks_count: number
 }
 
 export interface Segment {

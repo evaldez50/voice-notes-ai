@@ -68,6 +68,11 @@ export default function RecordingCard({ recording, selected, onClick, onDelete }
               {recording.language.toUpperCase()}
             </span>
           )}
+          {recording.tasks_count > 0 && (
+            <span className="inline-block text-[10px] bg-green-900/50 text-green-400 border border-green-800/50 rounded px-1.5 py-0.5 mt-1 ml-1">
+              ✓ {recording.tasks_count} {recording.tasks_count === 1 ? 'tarea' : 'tareas'} → MC
+            </span>
+          )}
         </div>
       </div>
     </div>
