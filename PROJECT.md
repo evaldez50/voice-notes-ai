@@ -24,10 +24,15 @@ App full-stack para grabar notas de voz, transcribirlas automáticamente con Whi
 
 ## Variables de entorno
 
-| Variable | Descripción | Default |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | API key de Anthropic | (requerida) |
-| `WHISPER_MODEL` | Modelo de Whisper: tiny, base, small, medium, large | `base` |
+| Variable | Tipo | Descripción | Default |
+|---|---|---|---|
+| `ANTHROPIC_API_KEY` | Secreta | API key de Anthropic | (requerida) |
+| `WHISPER_MODEL` | Config | Modelo Whisper: tiny, base, small, medium, large | `base` |
+| `SUPABASE_URL` | Config | URL del proyecto Supabase de Mission Control | (opcional) |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Secreta** | Service role key — NUNCA en frontend | (opcional) |
+| `SUPABASE_USER_ID` | Privada | UUID del usuario en Mission Control Auth | (opcional) |
+
+> Las variables de Supabase son opcionales: si no están configuradas, las tareas no se guardan en Mission Control pero la app sigue funcionando.
 
 Ver `.env.example` en la raíz del proyecto.
 
