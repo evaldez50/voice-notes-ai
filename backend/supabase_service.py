@@ -6,15 +6,22 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+_supabase_client = None
+
+
 def _get_client():
-    """Build a synchronous Supabase client. Returns None if env vars are missing."""
+    """Return cached Supabase client. Returns None if env vars are missing."""
+    global _supabase_client
+    if _supabase_client is not None:
+        return _supabase_client
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     if not url or not key:
         return None
     try:
         from supabase import create_client
-        return create_client(url, key)
+        _supabase_client = create_client(url, key)
+        return _supabase_client
     except Exception as e:
         print(f"[Supabase] Failed to create client: {e}")
         return None
@@ -31,7 +38,7 @@ async def save_tasks_to_mission_control(task_titles: list[str]) -> int:
 
     user_id = os.getenv("SUPABASE_USER_ID")
     if not user_id:
-        print("[Supabase] SUPABASE_USER_ID not set — skipping task save")
+        print("[Supabase] WARNING: SUPABASE_USER_ID not configured. Tasks will NOT be saved to Mission Control. Set this env var to enable the integration.")
         return 0
 
     client = _get_client()
