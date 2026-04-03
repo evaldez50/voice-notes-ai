@@ -88,8 +88,16 @@ def mock_transcribe():
 
 @pytest.fixture(autouse=True)
 def mock_ai_services():
-    """Mock Anthropic / AI service calls."""
+    """Mock Anthropic / AI service calls and Supabase."""
     with patch("main.generate_summary", new_callable=AsyncMock, return_value="Test summary") as m_sum, \
          patch("main.generate_mindmap", new_callable=AsyncMock, return_value={"nodes": []}) as m_mind, \
-         patch("main.stream_answer", new_callable=AsyncMock) as m_stream:
-        yield {"summary": m_sum, "mindmap": m_mind, "stream": m_stream}
+         patch("main.stream_answer", new_callable=AsyncMock) as m_stream, \
+         patch("main.extract_tasks", new_callable=AsyncMock, return_value=[]) as m_extract, \
+         patch("main.save_tasks_to_mission_control", new_callable=AsyncMock, return_value=0) as m_save:
+        yield {
+            "summary": m_sum,
+            "mindmap": m_mind,
+            "stream": m_stream,
+            "extract_tasks": m_extract,
+            "save_tasks": m_save,
+        }

@@ -18,7 +18,8 @@ load_dotenv()
 
 from database import SessionLocal, Recording, Base, engine
 from transcription import transcribe_audio
-from ai_service import generate_summary, generate_mindmap, stream_answer
+from ai_service import generate_summary, generate_mindmap, stream_answer, extract_tasks
+from supabase_service import save_tasks_to_mission_control
 
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
@@ -58,6 +59,7 @@ class RecordingOut(BaseModel):
     language: Optional[str]
     title: Optional[str]
     summary: Optional[str]
+    tasks_count: int = 0
 
     class Config:
         from_attributes = True
@@ -88,6 +90,12 @@ async def _transcribe_recording(recording_id: int):
         # Auto-title from first 80 chars
         text = result["text"]
         rec.title = (text[:77] + "...") if len(text) > 80 else text
+
+        # Extract tasks and save to Mission Control
+        task_titles = await extract_tasks(rec.transcription or "")
+        if task_titles:
+            tasks_saved = await save_tasks_to_mission_control(task_titles)
+            rec.tasks_count = tasks_saved
 
         db.commit()
         print(f"[Transcription] Done for recording {recording_id}")
