@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import type { Recording, MindMapData, ViewMode } from './types'
 import { api } from './services/api'
 import RecordingsList from './components/RecordingsList'
@@ -6,8 +6,34 @@ import ChatInterface from './components/ChatInterface'
 import AudioPlayer from './components/AudioPlayer'
 import TranscriptViewer from './components/TranscriptViewer'
 import MindMap from './components/MindMap'
+import WatchLayout from './components/WatchLayout'
+import MobileLayout from './components/MobileLayout'
 
-export default function App() {
+type LayoutMode = 'watch' | 'mobile' | 'desktop'
+
+function useLayoutMode(): LayoutMode {
+  const [mode, setMode] = useState<LayoutMode>(() => {
+    const w = window.innerWidth
+    if (w <= 320) return 'watch'
+    if (w < 768) return 'mobile'
+    return 'desktop'
+  })
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth
+      if (w <= 320) setMode('watch')
+      else if (w < 768) setMode('mobile')
+      else setMode('desktop')
+    }
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  return mode
+}
+
+function DesktopLayout() {
   const [selected, setSelected] = useState<Recording | null>(null)
   const [view, setView] = useState<ViewMode>('chat')
   const [mindmap, setMindmap] = useState<MindMapData | null>(null)
@@ -18,7 +44,6 @@ export default function App() {
   const [seekTo, setSeekTo] = useState<number | undefined>()
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
-  // Reset when selection changes
   useEffect(() => {
     setMindmap(null)
     setSummary(null)
@@ -35,8 +60,8 @@ export default function App() {
     try {
       const data = await api.getMindMap(selected.id)
       setMindmap(data)
-    } catch (e: any) {
-      alert(`Error al generar mapa mental: ${e.message}`)
+    } catch (e: unknown) {
+      alert(`Error al generar mapa mental: ${e instanceof Error ? e.message : 'desconocido'}`)
     } finally {
       setLoadingMM(false)
     }
@@ -50,8 +75,8 @@ export default function App() {
     try {
       const { summary: s } = await api.getSummary(selected.id)
       setSummary(s)
-    } catch (e: any) {
-      alert(`Error al generar resumen: ${e.message}`)
+    } catch (e: unknown) {
+      alert(`Error al generar resumen: ${e instanceof Error ? e.message : 'desconocido'}`)
     } finally {
       setLoadingSum(false)
     }
@@ -211,4 +236,12 @@ export default function App() {
       </main>
     </div>
   )
+}
+
+export default function App() {
+  const layout = useLayoutMode()
+
+  if (layout === 'watch') return <WatchLayout />
+  if (layout === 'mobile') return <MobileLayout />
+  return <DesktopLayout />
 }

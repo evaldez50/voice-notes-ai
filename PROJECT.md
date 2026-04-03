@@ -102,15 +102,18 @@ voice-notes-ai/
   - `generate_mindmap()` — mapa mental JSON con structured output
 
 ### Frontend
-- **App.tsx** — Layout principal con lista de grabaciones, upload, y detalle con tabs
+- **App.tsx** — Detecta viewport y delega a WatchLayout / MobileLayout / DesktopLayout
+- **WatchLayout.tsx** — UI minimalista 2 botones para smartwatch (≤320px)
+- **MobileLayout.tsx** — 3 tabs (Grabar / Notas / Chat) para móvil (<768px)
 - **UploadArea.tsx** — Drag & drop para subir archivos de audio
-- **RecordingsList.tsx / RecordingCard.tsx** — Lista y cards de grabaciones
+- **RecordingsList.tsx / RecordingCard.tsx** — Lista y cards de grabaciones (con badge de tareas → MC)
 - **AudioPlayer.tsx** — Reproductor de audio con controles
 - **TranscriptViewer.tsx** — Transcripción con timestamps clickeables
 - **ChatInterface.tsx** — Chat con Claude sobre las grabaciones (SSE streaming)
 - **MindMap.tsx** — Visualización de mapa mental generado por Claude
-- **useVoice.ts** — Hook para grabar audio desde el micrófono
-- **useTTS.ts** — Hook para text-to-speech
+- **useVoice.ts** — Hook para Speech Recognition (voz a texto)
+- **useTTS.ts** — Hook para text-to-speech (Web Speech API)
+- **useAudioRecorder.ts** — Hook para grabar audio con MediaRecorder API
 - **api.ts** — Cliente API con fetch para todos los endpoints del backend
 
 ## Cómo correr el proyecto
@@ -144,14 +147,34 @@ npm run dev                  # http://localhost:5173
 
 ## Status actual
 
-- Prototipo funcional con backend y frontend
+**Sprint completado — Mobile-first PWA + integración Mission Control**
+
+### Funcionalidades activas
 - Transcripción local con faster-whisper (no depende de API externa)
 - Chat streaming con Claude Opus 4.6 usando contexto de grabaciones
 - Resúmenes ejecutivos con timestamps
 - Mapas mentales generados con structured output
 - Base de datos SQLite local
 - Soporta múltiples formatos de audio: m4a, mp3, wav, ogg, aac, flac, mp4, webm
-- Frontend con React + TypeScript + Tailwind
+- **Layout adaptativo**: watch (≤320px) / mobile (<768px) / desktop
+- **PWA**: manifest.json + theme-color — instalable en Android/iOS
+- **Grabación desde navegador**: hook `useAudioRecorder` con MediaRecorder API
+- **Extracción de tareas**: Claude detecta tareas pendientes en cada transcripción
+- **Mission Control sync**: tareas guardadas automáticamente en Supabase (`tasks` table)
+- Badge visual en cada nota mostrando cuántas tareas se enviaron a Mission Control
+
+### Configurar integración con Mission Control
+Agregar al `.env` del backend:
+```
+SUPABASE_URL=https://[project-id].supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJ...   # NUNCA en frontend
+SUPABASE_USER_ID=[uuid-del-usuario]
+```
+Si no se configuran, la app sigue funcionando sin sincronizar tareas.
+
+### Próximo paso sugerido
+- Probar el PWA en el Samsung Watch Ultra / celular (abrir la URL del servidor desde el navegador del teléfono)
+- Agregar soporte para recibir audio compartido desde Samsung Galaxy Wearable via "Compartir" del sistema
 
 
 ## Roadmap
