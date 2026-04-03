@@ -72,6 +72,7 @@ async def test_list_recordings_after_upload(async_client):
     recordings = resp.json()
     assert len(recordings) == 1
     assert recordings[0]["original_name"] == "note1.mp3"
+    assert recordings[0]["tasks_count"] == 0
 
 
 @pytest.mark.anyio
@@ -84,6 +85,7 @@ async def test_get_single_recording(async_client):
     resp = await async_client.get(f"/api/recordings/{rec_id}")
     assert resp.status_code == 200
     assert resp.json()["original_name"] == "single.wav"
+    assert resp.json()["tasks_count"] == 0
 
 
 @pytest.mark.anyio

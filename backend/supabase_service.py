@@ -1,7 +1,10 @@
+import logging
 import os
 import asyncio
 
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -23,7 +26,7 @@ def _get_client():
         _supabase_client = create_client(url, key)
         return _supabase_client
     except Exception as e:
-        print(f"[Supabase] Failed to create client: {e}")
+        logger.error("[Supabase] Failed to create client: %s", e)
         return None
 
 
@@ -38,12 +41,12 @@ async def save_tasks_to_mission_control(task_titles: list[str]) -> int:
 
     user_id = os.getenv("SUPABASE_USER_ID")
     if not user_id:
-        print("[Supabase] WARNING: SUPABASE_USER_ID not configured. Tasks will NOT be saved to Mission Control. Set this env var to enable the integration.")
+        logger.warning("[Supabase] SUPABASE_USER_ID not configured. Tasks will NOT be saved to Mission Control. Set SUPABASE_USER_ID env var to enable.")
         return 0
 
     client = _get_client()
     if client is None:
-        print("[Supabase] Not configured — skipping task save")
+        logger.warning("[Supabase] Not configured — skipping task save")
         return 0
 
     saved = 0
@@ -61,7 +64,7 @@ async def save_tasks_to_mission_control(task_titles: list[str]) -> int:
             )
             saved += 1
         except Exception as e:
-            print(f"[Supabase] Failed to save task '{title}': {e}")
+            logger.error("[Supabase] Failed to save task '%s': %s", title, e)
 
-    print(f"[Supabase] Saved {saved}/{len(task_titles)} tasks to Mission Control")
+    logger.info("[Supabase] Saved %d/%d tasks to Mission Control", saved, len(task_titles))
     return saved
