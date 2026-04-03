@@ -161,3 +161,36 @@ async def generate_mindmap(transcription: str, segments: list) -> dict:
             "title": "Transcripción",
             "children": [{"label": "Contenido principal", "children": []}],
         }
+
+
+async def extract_tasks(transcript: str) -> list[str]:
+    """Extract pending task titles from a transcript using Claude.
+
+    Returns a list of task title strings.
+    Returns [] if transcript is empty or no tasks are found.
+    Never raises — parse errors return [].
+    """
+    if not transcript or not transcript.strip():
+        return []
+
+    response = await client.messages.create(
+        model="claude-opus-4-6",
+        max_tokens=1024,
+        system=(
+            "You are a task extraction assistant. "
+            "Extract all pending tasks, commitments, and action items from the transcript. "
+            "Return ONLY a valid JSON array of short task title strings (max 120 chars each). "
+            'Example: ["Send proposal to client", "Schedule follow-up meeting"]. '
+            "Return [] if no tasks are found. No explanation, only JSON."
+        ),
+        messages=[{"role": "user", "content": transcript}],
+    )
+
+    text = response.content[0].text.strip()
+    try:
+        result = json.loads(text)
+        if isinstance(result, list):
+            return [str(t) for t in result if t]
+    except json.JSONDecodeError:
+        print(f"[extract_tasks] Could not parse Claude response as JSON: {text[:100]}")
+    return []
