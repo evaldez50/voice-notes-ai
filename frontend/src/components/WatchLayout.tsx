@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { api } from '../services/api'
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
 import { useVoiceInput } from '../hooks/useVoice'
@@ -14,6 +14,14 @@ export default function WatchLayout() {
   const { isRecording, start: startRec, stop: stopRec } = useAudioRecorder()
   const { isListening, start: startVoice, stop: stopVoice } = useVoiceInput()
   const { isSpeaking, speak, stop: stopSpeech } = useTTS()
+
+  // When TTS finishes, go back to idle
+  useEffect(() => {
+    if (watchState === 'speaking' && !isSpeaking) {
+      setWatchState('idle')
+      setStatusText('Listo')
+    }
+  }, [isSpeaking, watchState])
 
   const handleRecordToggle = useCallback(async () => {
     if (watchState === 'recording') {
@@ -71,14 +79,6 @@ export default function WatchLayout() {
         setWatchState('speaking')
         setStatusText('Respondiendo...')
         speak(answer)
-        // Once TTS finishes, go back to idle
-        const check = setInterval(() => {
-          if (!isSpeaking) {
-            clearInterval(check)
-            setWatchState('idle')
-            setStatusText('Listo')
-          }
-        }, 500)
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : 'Error en consulta'
         setErrorMsg(msg)
@@ -86,7 +86,7 @@ export default function WatchLayout() {
         setTimeout(() => { setWatchState('idle'); setStatusText('Listo'); setErrorMsg(null) }, 3000)
       }
     })
-  }, [watchState, startVoice, stopVoice, stopSpeech, speak, isSpeaking])
+  }, [watchState, startVoice, stopVoice, stopSpeech, speak])
 
   const recIcon = watchState === 'recording' ? '⏹' : '🎙️'
   const askIcon = watchState === 'asking' ? '👂' : watchState === 'speaking' ? '⏹' : '🔊'
@@ -140,7 +140,7 @@ export default function WatchLayout() {
       {/* Ask button — smaller, secondary */}
       <button
         onClick={handleAsk}
-        disabled={isBusy || watchState === 'recording' || watchState === 'uploading'}
+        disabled={isBusy || watchState === 'recording'}
         className={`
           w-10 h-10 rounded-full text-base flex items-center justify-center
           transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-md
