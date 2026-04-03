@@ -1,8 +1,11 @@
 import os
 import json
+import logging
 import anthropic
 from typing import AsyncGenerator
 from transcription import format_segments_for_ai
+
+logger = logging.getLogger(__name__)
 
 client = anthropic.AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
@@ -168,29 +171,30 @@ async def extract_tasks(transcript: str) -> list[str]:
 
     Returns a list of task title strings.
     Returns [] if transcript is empty or no tasks are found.
-    Never raises — parse errors return [].
+    Never raises — parse errors and API errors return [].
     """
     if not transcript or not transcript.strip():
         return []
 
-    response = await client.messages.create(
-        model="claude-opus-4-6",
-        max_tokens=1024,
-        system=(
-            "You are a task extraction assistant. "
-            "Extract all pending tasks, commitments, and action items from the transcript. "
-            "Return ONLY a valid JSON array of short task title strings (max 120 chars each). "
-            'Example: ["Send proposal to client", "Schedule follow-up meeting"]. '
-            "Return [] if no tasks are found. No explanation, only JSON."
-        ),
-        messages=[{"role": "user", "content": transcript}],
-    )
-
-    text = response.content[0].text.strip()
     try:
+        response = await client.messages.create(
+            model="claude-opus-4-6",
+            max_tokens=1024,
+            system=(
+                "You are a task extraction assistant. "
+                "Extract all pending tasks, commitments, and action items from the transcript. "
+                "Return ONLY a valid JSON array of short task title strings (max 120 chars each). "
+                'Example: ["Send proposal to client", "Schedule follow-up meeting"]. '
+                "Return [] if no tasks are found. No explanation, only JSON."
+            ),
+            messages=[{"role": "user", "content": transcript}],
+        )
+        text = response.content[0].text.strip()
         result = json.loads(text)
         if isinstance(result, list):
             return [str(t) for t in result if t]
-    except json.JSONDecodeError:
-        print(f"[extract_tasks] Could not parse Claude response as JSON: {text[:100]}")
+    except (json.JSONDecodeError, IndexError, AttributeError) as e:
+        logger.warning("[extract_tasks] Could not parse Claude response: %s", e)
+    except Exception as e:
+        logger.exception("[extract_tasks] Unexpected error from Claude API: %s", e)
     return []
