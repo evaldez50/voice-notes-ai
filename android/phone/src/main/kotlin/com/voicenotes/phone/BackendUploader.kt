@@ -41,14 +41,13 @@ class BackendUploader(private val backendUrl: String) {
 
         Log.d(TAG, "Uploading ${file.name} to $backendUrl")
 
-        val response = client.newCall(request).execute()
-        val body = response.body?.string() ?: ""
-
-        if (!response.isSuccessful) {
-            throw java.io.IOException("Upload failed: HTTP ${response.code} — $body")
+        return client.newCall(request).execute().use { response ->
+            val body = response.body?.string() ?: ""
+            if (!response.isSuccessful) {
+                throw java.io.IOException("Upload failed: HTTP ${response.code} — $body")
+            }
+            Log.d(TAG, "Upload success: $body")
+            body
         }
-
-        Log.d(TAG, "Upload success: $body")
-        return body
     }
 }

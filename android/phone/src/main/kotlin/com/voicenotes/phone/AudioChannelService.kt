@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.android.gms.wearable.ChannelClient
 import com.google.android.gms.wearable.WearableListenerService
 import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
 import java.io.File
 
 private const val TAG = "AudioChannelService"
@@ -58,5 +59,3 @@ class AudioChannelService : WearableListenerService() {
     }
 }
 
-private suspend fun <T> com.google.android.gms.tasks.Task<T>.await(): T =
-    kotlinx.coroutines.tasks.await(this)
