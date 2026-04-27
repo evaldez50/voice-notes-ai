@@ -172,9 +172,24 @@ SUPABASE_USER_ID=[uuid-del-usuario]
 ```
 Si no se configuran, la app sigue funcionando sin sincronizar tareas.
 
-### Próximo paso sugerido
-- Probar el PWA en el Samsung Watch Ultra / celular (abrir la URL del servidor desde el navegador del teléfono)
-- Agregar soporte para recibir audio compartido desde Samsung Galaxy Wearable via "Compartir" del sistema
+### Sprint completado — Wear OS companion app
+
+App Android nativa en `android/` (proyecto Gradle multi-módulo):
+- **`android/wear/`** — App Compose for Wear OS para Samsung Watch Ultra
+  - `AudioRecorder.kt` — graba en M4A/AAC con MediaRecorder
+  - `WatchSender.kt` — transfiere audio al teléfono via ChannelClient (Data Layer API)
+  - `MainActivity.kt` — UI con estados Idle/Recording/Sending/Done/Error
+- **`android/phone/`** — Companion app Android
+  - `AudioChannelService.kt` — WearableListenerService recibe audio en background
+  - `BackendUploader.kt` — POST multipart a `/api/recordings/upload` con OkHttp
+  - `MainActivity.kt` — configura URL del backend (SharedPreferences)
+- Instrucciones de build e instalación en `android/README.md`
+
+### Próximo paso
+1. Abrir `android/` en Android Studio (descarga gradle-wrapper.jar y dependencias automáticamente)
+2. Build → instalar APKs: `./gradlew :wear:assembleDebug :phone:assembleDebug`
+3. Instalar en reloj via ADB WiFi (ver `android/README.md`)
+4. Configurar IP del PC en la companion app del teléfono
 
 
 ## Roadmap
